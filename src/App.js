@@ -4,7 +4,7 @@ import Cart from './components/Cart/Cart';
 import Layout from './components/Layout/Layout';
 import Products from './components/Shop/Products';
 import Notification from "./components/UI/Notification";
-import { uiActions } from "./store/ui-slice";
+import { fetchCartData, sendCartData } from "./store/cart-actions";
 
 let initial = true;
 
@@ -18,61 +18,20 @@ function App ()
 
   useEffect (
     () => {
-      async function sendCartData ()
-      {
-        dispatch (
-          uiActions.showNotification ( 
-            {
-              status: "pending",
-              title: "Sending....",
-              message: "Sending cart Data..."
-            }
-          )
-        );
+      dispatch ( fetchCartData () );
+    }, [ dispatch ]
+  );
 
-        const response = await fetch ( "https://shopping-page-redux-7c6d4-default-rtdb.firebaseio.com/cart.json",
-          {
-            method: "PUT",
-            body: JSON.stringify ( cart ),
-          }
-        );
-
-        if ( !response.ok )
-        {
-          throw new Error ( "Failed to Send Data !!!" );
-        }
-
-        dispatch ( uiActions.showNotification ( 
-            {
-              status: "success",
-              title: "Successful",
-              message: "Data Sent Successfully !!!"
-            }
-          )
-        );
-      }
-
+  useEffect (
+    () => {
       if ( initial )
       {
         initial = false;
         return;
       }
 
-      sendCartData ().catch (
-        ( error)  => {
-          dispatch ( uiActions.showNotification ( 
-              {
-                status: "error",
-                title: "Failed !",
-                message: "Failed to Send Data !!!"
-              }
-            )
-          ); 
-        }
-      )
-    },
-
-    [ cart, dispatch ]
+      dispatch ( sendCartData ( cart ) );
+    }, [ cart, dispatch ]
   );
 
   return (
